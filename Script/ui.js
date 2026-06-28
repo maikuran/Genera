@@ -18,27 +18,49 @@ window.addEventListener("DOMContentLoaded", function () {
 
 function buildUI() {
 
-    const container = document.getElementById("game");
+    const game = document.getElementById("game");
 
-    const powerDiv = createDiv("Power: ", "power");
+    game.innerHTML = "";
 
-    const ppDiv = createDiv("Prestige: ", "pp");
+    const Root = document.createElement("div");
+    Root.id = "Root";
+
+    game.appendChild(Root);
+
+    /* ===== タイトル ===== */
+
+    const title = document.createElement("h1");
+    title.textContent = "Normality Zone";
+
+    Root.appendChild(title);
+
+    /* ===== Power ===== */
+
+    Root.appendChild(createDiv("Power: ", "power"));
+
+    /* ===== Prestige ===== */
+
+    Root.appendChild(createDiv("Prestige: ", "pp"));
+
+    /* ===== Prestige Button ===== */
 
     const prestigeBtn = document.createElement("button");
 
+    prestigeBtn.id = "prestigeButton";
+
     prestigeBtn.textContent = "Prestige";
 
-    prestigeBtn.onclick = () => doPrestige();
+    prestigeBtn.onclick = doPrestige;
 
-    container.appendChild(powerDiv);
-    container.appendChild(ppDiv);
-    container.appendChild(prestigeBtn);
+    Root.appendChild(prestigeBtn);
 
-    const genContainer = document.createElement("div");
+    /* ===== Generator一覧 ===== */
 
-    genContainer.id = "generators";
+    const generators = document.createElement("div");
 
-    container.appendChild(genContainer);
+    generators.id = "generators";
+
+    Root.appendChild(generators);
 
     buildGeneratorsUI();
 
@@ -56,27 +78,42 @@ function buildGeneratorsUI() {
 
     for (let i = 0; i < 13; i++) {
 
-        const gen = game.generators[i];
+        const box = document.createElement("div");
 
-        const div = document.createElement("div");
+        box.className = "generator";
 
-        div.className = "generator";
+        box.id = `generator_${i}`;
 
-        div.innerHTML = `
-            <h3>Generator ${i + 1}</h3>
-            <p>Amount: <span id="g_amt_${i}">0</span></p>
-            <p>Cost: <span id="g_cost_${i}">0</span></p>
-            <button onclick="buyGenerator(${i + 1})">Buy</button>
-        `;
+        const title = document.createElement("h3");
+        title.textContent = `Generator ${i + 1}`;
 
-        container.appendChild(div);
+        const amount = createDiv("Amount: ", `g_amt_${i}`);
+
+        const cost = createDiv("Cost: ", `g_cost_${i}`);
+
+        const button = document.createElement("button");
+
+        button.textContent = "Buy";
+
+        button.onclick = function () {
+
+            buyGenerator(i + 1);
+
+        };
+
+        box.appendChild(title);
+        box.appendChild(amount);
+        box.appendChild(cost);
+        box.appendChild(button);
+
+        container.appendChild(box);
 
     }
 
 }
 
 /* ============================
-   UI更新（毎フレーム）
+   UI更新
 ============================ */
 
 function updateUI() {
@@ -87,33 +124,45 @@ function updateUI() {
         shortFormat(game.power);
 
     if (game.prestige) {
+
         document.getElementById("pp").textContent =
             shortFormat(game.prestige.points);
+
     }
 
     for (let i = 0; i < 13; i++) {
 
         const gen = game.generators[i];
 
-        const amt = document.getElementById(`g_amt_${i}`);
-        const cost = document.getElementById(`g_cost_${i}`);
+        document.getElementById(`g_amt_${i}`).textContent =
+            shortFormat(gen.amount);
 
-        if (amt) amt.textContent = shortFormat(gen.amount);
-        if (cost) cost.textContent = shortFormat(gen.cost);
+        document.getElementById(`g_cost_${i}`).textContent =
+            shortFormat(gen.cost);
 
     }
 
 }
 
 /* ============================
-   DOMヘルパー
+   Div生成
 ============================ */
 
 function createDiv(label, id) {
 
     const div = document.createElement("div");
 
-    div.innerHTML = `${label}<span id="${id}">0</span>`;
+    const text = document.createTextNode(label);
+
+    const span = document.createElement("span");
+
+    span.id = id;
+
+    span.textContent = "0";
+
+    div.appendChild(text);
+
+    div.appendChild(span);
 
     return div;
 
