@@ -90,6 +90,7 @@ game.power=game.power.plus(
 game.generators[0].amount
 .times(game.generators[0].production)
 .times(diff)
+.times(prestigeMultiplier())
 );
 
 checkInfinity();
