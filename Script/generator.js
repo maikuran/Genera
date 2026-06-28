@@ -1,40 +1,161 @@
 "use strict";
 
-/* ============================
-   Generator System (Normality)
-   ============================ */
+/*global game,D*/
 
-/* global game, D, add, mul, gte */
+const INFINITY_REQUIREMENT=D("1.79e308");
 
-const INFINITY_REQUIREMENT = D("1.79e308");
+const BASE_COST=[
+D(10),
+D(100),
+D(1e3),
+D(1e4),
+D(1e6),
+D(1e8),
+D(1e11),
+D(1e15),
+D(1e20),
+D(1e30),
+D(1e45),
+D(1e70),
+D("1e120")
+];
 
-/* ============================
-   初期化
-============================ */
+const COST_MULT=[
+1.15,
+1.15,
+1.15,
+1.16,
+1.17,
+1.18,
+1.20,
+1.25,
+1.30,
+1.35,
+1.45,
+1.60,
+2.00
+];
 
-function initGenerators() {
+function initGenerators(){
 
-    game.generators = [];
+game.generators=[];
 
-    for (let i = 1; i <= 13; i++) {
+for(let i=0;i<13;i++){
 
-        const baseCost = D(10).pow(i - 1);
+game.generators.push({
 
-        game.generators.push({
+id:i+1,
 
-            id: i,
+amount:D(0),
 
-            amount: D(0),
+bought:0,
 
-            bought: 0,
+baseCost:BASE_COST[i],
 
-            baseCost: baseCost,
-            cost: baseCost,
+cost:BASE_COST[i],
 
-            production: D(1)
+production:D(1)
 
-        });
+});
 
+}
+
+}
+
+function updateGenerators(diff){
+
+for(let i=12;i>=0;i--){
+
+const g=game.generators[i];
+
+if(i==12){
+
+g.amount=g.amount.plus(
+g.amount.times(g.production).times(diff)
+);
+
+}else{
+
+const up=game.generators[i+1];
+
+g.amount=g.amount.plus(
+up.amount.times(up.production).times(diff)
+);
+
+}
+
+}
+
+game.power=game.power.plus(
+game.generators[0].amount
+.times(game.generators[0].production)
+.times(diff)
+);
+
+checkInfinity();
+
+}
+
+function buyGenerator(id){
+
+const g=game.generators[id-1];
+
+if(!g)return;
+
+if(game.power.lt(g.cost))return;
+
+game.power=game.power.minus(g.cost);
+
+g.amount=g.amount.plus(1);
+
+g.bought++;
+
+g.cost=g.baseCost.times(
+Decimal.pow(COST_MULT[id-1],g.bought)
+);
+
+}
+
+function updateCosts(){
+
+for(let i=0;i<13;i++){
+
+const g=game.generators[i];
+
+g.cost=g.baseCost.times(
+Decimal.pow(COST_MULT[i],g.bought)
+);
+
+}
+
+}
+
+function getPowerPerSecond(){
+
+return game.generators[0].amount
+.times(game.generators[0].production);
+
+}
+
+function checkInfinity(){
+
+if(game.infinityUnlocked)return;
+
+if(game.power.gte(INFINITY_REQUIREMENT)){
+
+game.infinityUnlocked=true;
+
+onInfinityReached();
+
+}
+
+}
+
+function onInfinityReached(){
+
+console.log("INFINITY");
+
+}
     }
 
 }
