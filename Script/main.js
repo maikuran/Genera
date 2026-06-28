@@ -1,225 +1,155 @@
 "use strict";
 
-/* global game, initGenerators, updateGenerators, initPrestige, checkPrestigeUnlock, format */
+/*global game,D,initGenerators,updateGenerators,initPrestige,checkPrestigeUnlock,updateUI*/
 
-/* ============================
-   メイン初期化
-============================ */
+const DB_NAME="NormalityDB";
+const STORE_NAME="Save";
 
-window.onload = async function () {
+game={
+power:D(0),
+generators:[],
+prestige:null,
+infinityUnlocked:false,
+lastUpdate:Date.now()
+};
 
-    initGenerators();
-    initPrestige();
+window.addEventListener("DOMContentLoaded",async()=>{
 
-    await loadGame();
+initGenerators();
 
-    game.lastUpdate = Date.now();
+initPrestige();
 
-    setInterval(loop, 50);
-    setInterval(saveGame, 10000);
+await loadGame();
+
+updateCosts();
+
+buildUI();
+
+game.lastUpdate=Date.now();
+
+setInterval(loop,50);
+
+setInterval(saveGame,10000);
+
+});
+
+function loop(){
+
+const now=Date.now();
+
+const diff=(now-game.lastUpdate)/1000;
+
+game.lastUpdate=now;
+
+updateGenerators(diff);
+
+checkPrestigeUnlock();
+
+updateUI();
+
+}
+
+function openDB(){
+
+return new Promise((resolve,reject)=>{
+
+const req=indexedDB.open(DB_NAME,1);
+
+req.onupgradeneeded=e=>{
+
+e.target.result.createObjectStore(STORE_NAME);
 
 };
 
-/* ============================
-   メインループ
-============================ */
+req.onsuccess=()=>resolve(req.result);
 
-function loop() {
+req.onerror=()=>reject(req.error);
 
-    const now = Date.now();
-    const diff = (now - game.lastUpdate) / 1000;
-
-    game.lastUpdate = now;
-
-    updateGenerators(diff);
-
-    checkPrestigeUnlock();
-
-    updateUI();
+});
 
 }
 
-/* ============================
-   UI更新
-============================ */
+async function saveGame(){
 
-function updateUI() {
+const db=await openDB();
 
-    const powerEl = document.getElementById("power");
-    const ppEl = document.getElementById("pp");
+const tx=db.transaction(STORE_NAME,"readwrite");
 
-    if (powerEl) {
-        powerEl.textContent = shortFormat(game.power);
-    }
+tx.objectStore(STORE_NAME).put({
 
-    if (ppEl && game.prestige) {
-        ppEl.textContent = shortFormat(game.prestige.points);
-    }
+power:game.power.toString(),
 
-}
+infinityUnlocked:game.infinityUnlocked,
 
-/* ============================
-   数値省略表示
-   a..z → aa..zz → aaa...
-============================ */
+prestige:{
+points:game.prestige.points.toString(),
+total:game.prestige.total.toString(),
+mult:game.prestige.mult.toString(),
+unlocked:game.prestige.unlocked
+},
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz";
+generators:game.generators.map(g=>({
 
-function shortFormat(num) {
+amount:g.amount.toString(),
 
-    let n = new Decimal(num);
+bought:g.bought
 
-    if (n.lt(1000)) return n.floor().toString();
+}))
 
-    const e = n.log10().floor();
-
-    const m = n.div(Decimal.pow(10, e)).toFixed(2);
-
-    return `${m}e${e}`;
+},"Save");
 
 }
 
-/* ============================
-   IndexedDB セーブ
-============================ */
+async function loadGame(){
 
-const DB_NAME = "NormalityDB";
-const STORE_NAME = "save";
+const db=await openDB();
 
-function openDB() {
+return new Promise(resolve=>{
 
-    return new Promise((resolve, reject) => {
+const tx=db.transaction(STORE_NAME,"readonly");
 
-        const req = indexedDB.open(DB_NAME, 1);
+const req=tx.objectStore(STORE_NAME).get("Save");
 
-        req.onupgradeneeded = function (e) {
+req.onsuccess=()=>{
 
-            const db = e.target.result;
+const s=req.result;
 
-            db.createObjectStore(STORE_NAME);
+if(!s){
 
-        };
+resolve();
 
-        req.onsuccess = () => resolve(req.result);
-
-        req.onerror = () => reject(req.error);
-
-    });
+return;
 
 }
 
-/* ============================
-   セーブ
-============================ */
+game.power=D(s.power);
 
-async function saveGame() {
+game.infinityUnlocked=s.infinityUnlocked;
 
-    const db = await openDB();
+game.prestige.points=D(s.prestige.points);
 
-    const tx = db.transaction(STORE_NAME, "readwrite");
+game.prestige.total=D(s.prestige.total);
 
-    const store = tx.objectStore(STORE_NAME);
+game.prestige.mult=D(s.prestige.mult);
 
-    const data = {
+game.prestige.unlocked=s.prestige.unlocked;
 
-        power: game.power.toString(),
+for(let i=0;i<13;i++){
 
-        prestige: game.prestige,
+if(!s.generators[i])continue;
 
-        generators: game.generators.map(g => ({
-            amount: g.amount.toString(),
-            bought: g.bought,
-            cost: g.cost.toString()
-        }))
+game.generators[i].amount=D(s.generators[i].amount);
 
-    };
-
-    store.put(data, "save");
+game.generators[i].bought=s.generators[i].bought;
 
 }
 
-/* ============================
-   ロード
-============================ */
+resolve();
 
-async function loadGame() {
+};
 
-    const db = await openDB();
+req.onerror=()=>resolve();
 
-    return new Promise((resolve) => {
-
-        const tx = db.transaction(STORE_NAME, "readonly");
-
-        const store = tx.objectStore(STORE_NAME);
-
-        const req = store.get("save");
-
-        req.onsuccess = function () {
-
-            const data = req.result;
-
-            if (!data) return resolve();
-
-            game.power = new Decimal(data.power);
-
-            if (data.prestige) {
-
-                game.prestige = data.prestige;
-
-                game.prestige.points =
-                    new Decimal(data.prestige.points);
-
-                game.prestige.totalPoints =
-                    new Decimal(data.prestige.totalPoints);
-
-                game.prestige.multiplier =
-                    new Decimal(data.prestige.multiplier);
-
-            }
-
-            if (data.generators) {
-
-                for (let i = 0; i < data.generators.length; i++) {
-
-                    game.generators[i].amount =
-                        new Decimal(data.generators[i].amount);
-
-                    game.generators[i].bought =
-                        data.generators[i].bought;
-
-                    game.generators[i].cost =
-                        new Decimal(data.generators[i].cost);
-
-                }
-
-            }
-
-            resolve();
-
-        };
-
-        req.onerror = () => resolve();
-
-    });
-
-}
-
-/* ============================
-   ヘルパー：文字列省略（将来拡張用）
-============================ */
-
-function letterIndex(n) {
-
-    let result = "";
-
-    while (n >= 0) {
-
-        result = alphabet[n % 26] + result;
-
-        n = Math.floor(n / 26) - 1;
-
-    }
-
-    return result;
+});
 
 }
