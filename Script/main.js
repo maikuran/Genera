@@ -6,7 +6,7 @@ const DB_NAME="NormalityDB";
 const STORE_NAME="Save";
 
 game={
-power:D(0),
+power:D(10),
 generators:[],
 prestige:null,
 infinityUnlocked:false,
