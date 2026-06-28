@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Normality Zone</title>
 
     <link rel="stylesheet" href="style.css">
 
     <!-- Decimal -->
-    <script src="https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js/break_eternity.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js@2/dist/break_eternity.js"></script>
 
-    <!-- Script Folder -->
+    <!-- Scripts -->
     <script defer src="Script/function.js"></script>
     <script defer src="Script/generator.js"></script>
     <script defer src="Script/prestige.js"></script>
@@ -20,121 +24,8 @@
 
 <body>
 
-<h1>Normality Zone</h1>
-
-<div id="game">
-
-    <!-- ================= Power ================= -->
-    <div class="panel">
-        Power:
-        <span id="power">0</span>
-    </div>
-
-    <!-- ================= Prestige ================= -->
-    <div class="panel">
-        Prestige:
-        <span id="pp">0</span>
-    </div>
-
-    <button onclick="doPrestige()">Prestige</button>
-
-    <!-- ================= Generators ================= -->
-    <div id="generators">
-
-        <div class="generator" id="gen_0">
-            <h3>Generator 1</h3>
-            <p>Amount: <span id="g_amt_0">0</span></p>
-            <p>Cost: <span id="g_cost_0">0</span></p>
-            <button onclick="buyGenerator(1)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_1">
-            <h3>Generator 2</h3>
-            <p>Amount: <span id="g_amt_1">0</span></p>
-            <p>Cost: <span id="g_cost_1">0</span></p>
-            <button onclick="buyGenerator(2)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_2">
-            <h3>Generator 3</h3>
-            <p>Amount: <span id="g_amt_2">0</span></p>
-            <p>Cost: <span id="g_cost_2">0</span></p>
-            <button onclick="buyGenerator(3)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_3">
-            <h3>Generator 4</h3>
-            <p>Amount: <span id="g_amt_3">0</span></p>
-            <p>Cost: <span id="g_cost_3">0</span></p>
-            <button onclick="buyGenerator(4)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_4">
-            <h3>Generator 5</h3>
-            <p>Amount: <span id="g_amt_4">0</span></p>
-            <p>Cost: <span id="g_cost_4">0</span></p>
-            <button onclick="buyGenerator(5)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_5">
-            <h3>Generator 6</h3>
-            <p>Amount: <span id="g_amt_5">0</span></p>
-            <p>Cost: <span id="g_cost_5">0</span></p>
-            <button onclick="buyGenerator(6)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_6">
-            <h3>Generator 7</h3>
-            <p>Amount: <span id="g_amt_6">0</span></p>
-            <p>Cost: <span id="g_cost_6">0</span></p>
-            <button onclick="buyGenerator(7)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_7">
-            <h3>Generator 8</h3>
-            <p>Amount: <span id="g_amt_7">0</span></p>
-            <p>Cost: <span id="g_cost_7">0</span></p>
-            <button onclick="buyGenerator(8)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_8">
-            <h3>Generator 9</h3>
-            <p>Amount: <span id="g_amt_8">0</span></p>
-            <p>Cost: <span id="g_cost_8">0</span></p>
-            <button onclick="buyGenerator(9)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_9">
-            <h3>Generator 10</h3>
-            <p>Amount: <span id="g_amt_9">0</span></p>
-            <p>Cost: <span id="g_cost_9">0</span></p>
-            <button onclick="buyGenerator(10)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_10">
-            <h3>Generator 11</h3>
-            <p>Amount: <span id="g_amt_10">0</span></p>
-            <p>Cost: <span id="g_cost_10">0</span></p>
-            <button onclick="buyGenerator(11)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_11">
-            <h3>Generator 12</h3>
-            <p>Amount: <span id="g_amt_11">0</span></p>
-            <p>Cost: <span id="g_cost_11">0</span></p>
-            <button onclick="buyGenerator(12)">Buy</button>
-        </div>
-
-        <div class="generator" id="gen_12">
-            <h3>Generator 13</h3>
-            <p>Amount: <span id="g_amt_12">0</span></p>
-            <p>Cost: <span id="g_cost_12">0</span></p>
-            <button onclick="buyGenerator(13)">Buy</button>
-        </div>
-
-    </div>
-
-</div>
+    <div id="game"></div>
 
 </body>
+
 </html>
